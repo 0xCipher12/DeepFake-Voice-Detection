@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Result | DeepGuard AI{% endblock %}
+
+{% block content %}
+<div class="container result-container">
+    <div class="result-header">
+        <a href="/" class="back-btn">← Back to Home</a>
+    </div>
+
+    {% if result %}
+    <div class="result-card glass-card">
+        <div class="result-status">
+            {% if result.result_class == 'real' %}
+            <div class="status-icon real">✓</div>
+            <div class="status-badge real-badge">VERIFIED - REAL VOICE</div>
+            {% else %}
+            <div class="status-icon fake">⚠</div>
+            <div class="status-badge fake-badge">DEEPFAKE DETECTED</div>
+            {% endif %}
+        </div>
+
+        <h1 class="result-title">
+            {% if result.result_class == 'real' %}
+            This is a <span class="gradient-text-real">REAL Voice</span>
+            {% else %}
+            This is a <span class="gradient-text-fake">FAKE Voice</span>
+            {% endif %}
+        </h1>
+
+        <!-- Confidence Score Circle -->
+        <div class="confidence-section">
+            <div class="confidence-circle">
+                <svg class="progress-ring" width="200" height="200">
+                    <circle class="progress-ring-bg" stroke="#2a2a4a" stroke-width="12" fill="transparent" r="88" cx="100" cy="100"/>
+                    <circle class="progress-ring-fill" stroke="url(#gradient)" stroke-width="12" fill="transparent" r="88" cx="100" cy="100"
+                            style="stroke-dasharray: 553; stroke-dashoffset: 553">
+                    </circle>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            {% if result.result_class == 'real' %}
+                            <stop offset="0%" style="stop-color:#00c6ff"/>
+                            <stop offset="100%" style="stop-color:#0072ff"/>
+                            {% else %}
+                            <stop offset="0%" style="stop-color:#ff0066"/>
+                            <stop offset="100%" style="stop-color:#ff3300"/>
+                            {% endif %}
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="confidence-text">
+                    <span class="confidence-value" id="confidenceValue">{{ result.confidence }}%</span>
+                    <span class="confidence-label">Confidence Score</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Details -->
+        <div class="analysis-details">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">📄 File Name</span>
+                    <span class="detail-value">{{ result.filename }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">🎯 File Type</span>
+                    <span class="detail-value">{{ result.file_type|upper }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">📦 File Size</span>
+                    <span class="detail-value">{{ result.file_size }} KB</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">⏱️ Analyzed On</span>
+                    <span class="detail-value">{{ result.timestamp }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="risk-assessment">
+            <h3>📊 Risk Assessment</h3>
+            <div class="risk-meter">
+                <div class="risk-bar">
+                    <div class="risk-fill" id="riskFill" style="height: 100%; border-radius: 10px; transition: width 1s ease;">
+                    </div>
+                </div>
+                <div class="risk-labels">
+                    <span>🟢 Low Risk</span>
+                    <span>🟡 Medium Risk</span>
+                    <span>🔴 High Risk</span>
+                </div>
+            </div>
+            <p class="risk-description" id="riskDescription">
+                {% if result.result_class == 'real' %}
+                ✅ This audio shows authentic human voice characteristics with natural patterns and no signs of AI manipulation.
+                {% else %}
+                ⚠️ This audio exhibits patterns consistent with AI-generated or manipulated content. Please verify the source.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Detailed Metrics -->
+        <div class="metrics-section" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <h3>🔍 Analysis Metrics</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem;">
+                <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 10px;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Feature Extraction</span>
+                    <span style="display: block; font-weight: 600;">30+ Acoustic Features</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 10px;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Model Used</span>
+                    <span style="display: block; font-weight: 600;">Random Forest (100 trees)</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 10px;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Analysis Time</span>
+                    <span style="display: block; font-weight: 600;">&lt; 5 seconds</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 10px;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Privacy Status</span>
+                    <span style="display: block; font-weight: 600;">✅ Auto-deleted</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons" style="margin-top: 2rem;">
+            <button class="btn-secondary" onclick="window.location.href='/'">
+                🔄 Analyze Another File
+            </button>
+            <button class="btn-primary" onclick="window.location.href='/history'">
+                📜 View History
+            </button>
+        </div>
+    </div>
+
+    <!-- Share Results Section -->
+    <div class="share-section glass-card" style="margin-top: 1.5rem;">
+        <h3>📤 Share Analysis Report</h3>
+        <div class="share-buttons" style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+            <button class="share-btn" onclick="downloadReport()">📥 Download Report (JSON)</button>
+            <button class="share-btn" onclick="copyResults()">📋 Copy Results to Clipboard</button>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="error-card glass-card">
+        <div class="error-icon">❌</div>
+        <h2>No Analysis Results Found</h2>
+        <p>Please upload a file for analysis first.</p>
+        <a href="/" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">Go to Home</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Get result data from server
+const resultClass = "{{ result.result_class }}" || "real";
+const confidenceScore = parseFloat("{{ result.confidence }}" || 0);
+const filename = "{{ result.filename }}" || "Unknown";
+const resultText = "{{ result.result }}" || "Unknown";
+const fileType = "{{ result.file_type }}" || "audio";
+const fileSize = "{{ result.file_size }}" || "0";
+const timestamp = "{{ result.timestamp }}" || "Unknown";
+
+// Download Report Function
+function downloadReport() {
+    const resultData = {
+        filename: filename,
+        result: resultText,
+        confidence: confidenceScore,
+        timestamp: timestamp,
+        file_type: fileType,
+        file_size: fileSize + " KB",
+        analyzer: "DeepGuard AI v2.0",
+        message: "This analysis was performed using advanced machine learning algorithms"
+    };
+    
+    const blob = new Blob([JSON.stringify(resultData, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `deepguard_report_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToastMessage("✅ Report downloaded successfully!");
+}
+
+// Copy Results to Clipboard
+function copyResults() {
+    const text = `🔍 DEEPGUARD AI ANALYSIS REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 File Name: ${filename}
+🎯 Result: ${resultText}
+📊 Confidence: ${confidenceScore}%
+🎬 File Type: ${fileType.toUpperCase()}
+📦 File Size: ${fileSize} KB
+⏱️ Analyzed On: ${timestamp}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛡️ Powered by DeepGuard AI
+🔬 Advanced Deepfake Detection System
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    
+    navigator.clipboard.writeText(text).then(function() {
+        showToastMessage("✅ Results copied to clipboard!");
+    }).catch(function() {
+        alert("❌ Failed to copy results");
+    });
+}
+
+// Toast Message Function
+function showToastMessage(message) {
+    let toast = document.getElementById('customToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'customToast';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid #00c6ff;
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        `;
+        document.body.appendChild(toast);
+    }
+    
+    toast.innerHTML = message;
+    toast.style.transform = 'translateX(0)';
+    
+    setTimeout(() => {
+        toast.style.transform = 'translateX(400px)';
+    }, 3000);
+}
+
+// Animate elements on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate risk fill bar
+    const riskFill = document.getElementById('riskFill');
+    if (riskFill) {
+        let targetWidth = 0;
+        if (resultClass === 'real') {
+            targetWidth = 100 - confidenceScore;
+        } else {
+            targetWidth = confidenceScore;
+        }
+        
+        // Set background color based on result
+        if (resultClass === 'real') {
+            riskFill.style.background = 'linear-gradient(90deg, #00c6ff, #0072ff)';
+        } else {
+            riskFill.style.background = 'linear-gradient(90deg, #ff0066, #ff3300)';
+        }
+        
+        // Animate width
+        setTimeout(() => {
+            riskFill.style.width = targetWidth + '%';
+        }, 200);
+    }
+    
+    // Animate confidence circle
+    const circle = document.querySelector('.progress-ring-fill');
+    if (circle) {
+        const radius = 88;
+        const circumference = 2 * Math.PI * radius; // ~553
+        const offset = circumference - (confidenceScore / 100 * circumference);
+        
+        setTimeout(() => {
+            circle.style.transition = 'stroke-dashoffset 1.5s ease';
+            circle.style.strokeDashoffset = offset;
+        }, 100);
+    }
+    
+    // Add fade-in animation for result card
+    const resultCard = document.querySelector('.result-card');
+    if (resultCard) {
+        resultCard.style.opacity = '0';
+        resultCard.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            resultCard.style.transition = 'all 0.5s ease';
+            resultCard.style.opacity = '1';
+            resultCard.style.transform = 'translateY(0)';
+        }, 100);
+    }
+    
+    console.log("🎉 DeepGuard AI - Analysis Complete!");
+    console.log("📊 Result: " + resultText + " with " + confidenceScore + "% confidence");
+});
+</script>
+
+<style>
+/* Additional styles for result page */
+.result-card {
+    transition: all 0.3s ease;
+}
+
+.risk-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.risk-fill {
+    width: 0%;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.detail-item {
+    transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+    background: rgba(0, 198, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.share-btn {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(0, 198, 255, 0.3);
+    border-color: #00c6ff;
+}
+
+.progress-ring-fill {
+    transition: stroke-dashoffset 0s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn-secondary, .btn-primary {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover, .btn-primary:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Home | DeepGuard AI - Deepfake Voice Detector{% endblock %}
+
+{% block home_active %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="hero-section">
+        <div class="hero-badge">
+            <span class="badge-icon">⚡</span>
+            Powered by Advanced AI
+        </div>
+        <h1 class="hero-title">
+            Detect Deepfake<br>
+            <span class="gradient-text">Voice & Audio</span>
+        </h1>
+        <p class="hero-subtitle">
+            State-of-the-art machine learning model to identify AI-generated voices<br>
+            and manipulated audio with 94%+ accuracy
+        </p>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <div class="card-icon">📂</div>
+            <h2>Upload File for Analysis</h2>
+            <p>Support MP3, WAV, M4A, MP4, AVI, MOV formats</p>
+        </div>
+
+        <form id="uploadForm" action="/analyze" method="POST" enctype="multipart/form-data">
+            <!-- Hidden file input -->
+            <input type="file" name="file" id="fileInput" accept=".wav,.mp3,.m4a,.mp4,.avi,.mov" style="position: absolute; opacity: 0; width: 0; height: 0;" required>
+            
+            <!-- Upload box - direct click trigger -->
+            <div class="upload-area" id="uploadBox">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">
+                    <span id="fileText">Choose a file or drag & drop</span>
+                    <small>Maximum file size: 25MB</small>
+                </div>
+            </div>
+
+            <div class="file-info" id="fileInfo" style="display: none;">
+                <div class="file-details">
+                    <span class="file-icon">🎵</span>
+                    <span id="fileName"></span>
+                    <span id="fileSize"></span>
+                </div>
+                <button type="button" class="remove-file" id="removeFile">✕</button>
+            </div>
+
+            <button type="submit" class="analyze-btn" id="analyzeBtn">
+                <span class="btn-text">Analyze Voice</span>
+                <span class="btn-icon">→</span>
+            </button>
+        </form>
+
+        <div class="supported-formats">
+            <span>Supported:</span>
+            <span class="format-tag">🎵 WAV</span>
+            <span class="format-tag">🎵 MP3</span>
+            <span class="format-tag">🎵 M4A</span>
+            <span class="format-tag">🎬 MP4</span>
+            <span class="format-tag">🎬 AVI</span>
+            <span class="format-tag">🎬 MOV</span>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <h3>AI-Powered Detection</h3>
+            <p>Advanced machine learning algorithm trained on thousands of real and fake voice samples</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Real-time Analysis</h3>
+            <p>Get results in seconds with detailed confidence scores and analysis metrics</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Privacy First</h3>
+            <p>Your files are automatically deleted after analysis. No data is stored permanently</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Detailed Reports</h3>
+            <p>Comprehensive analysis with visual indicators and confidence breakdown</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// DIRECT FILE INPUT HANDLER - INSTANT OPEN
+(function() {
+    // Get elements
+    const fileInput = document.getElementById('fileInput');
+    const uploadBox = document.getElementById('uploadBox');
+    const fileText = document.getElementById('fileText');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFile');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const form = document.getElementById('uploadForm');
+    
+    // DIRECT CLICK - NO DELAY
+    if (uploadBox) {
+        uploadBox.style.cursor = 'pointer';
+        
+        // Method 1: Click event
+        uploadBox.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Upload box clicked - opening file explorer");
+            fileInput.click();
+        });
+        
+        // Method 2: Mousedown for faster response
+        uploadBox.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+        });
+    }
+    
+    // File selection handler
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            console.log("File selected event triggered");
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const sizeKB = (file.size / 1024).toFixed(2);
+                const sizeMB = (sizeKB / 1024).toFixed(2);
+                const displaySize = sizeKB > 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+                
+                // Update UI
+                if (fileText) fileText.innerText = file.name;
+                if (fileName) fileName.innerText = file.name;
+                if (fileSize) fileSize.innerText = displaySize;
+                if (fileInfo) fileInfo.style.display = "flex";
+                
+                // Style upload box
+                if (uploadBox) {
+                    uploadBox.style.borderColor = "#00c6ff";
+                    uploadBox.style.background = "rgba(0,198,255,0.05)";
+                }
+                
+                console.log("File ready:", file.name);
+            }
+        });
+    }
+    
+    // Remove file
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.value = "";
+            if (fileInfo) fileInfo.style.display = "none";
+            if (fileText) fileText.innerText = "Choose a file or drag & drop";
+            if (uploadBox) {
+                uploadBox.style.borderColor = "rgba(255,255,255,0.3)";
+                uploadBox.style.background = "transparent";
+            }
+        });
+    }
+    
+    // Drag and drop
+    if (uploadBox) {
+        uploadBox.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = "#00c6ff";
+            this.style.background = "rgba(0,198,255,0.1)";
+        });
+        
+        uploadBox.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = "rgba(255,255,255,0.3)";
+            this.style.background = "transparent";
+        });
+        
+        uploadBox.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                const changeEvent = new Event('change');
+                fileInput.dispatchEvent(changeEvent);
+            }
+            
+            this.style.borderColor = "rgba(255,255,255,0.3)";
+            this.style.background = "transparent";
+        });
+    }
+    
+    // Form submit
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert("Please select a file first!");
+                return;
+            }
+            
+            if (analyzeBtn) {
+                analyzeBtn.disabled = true;
+                analyzeBtn.innerHTML = '<span class="btn-text">Analyzing...</span><span class="btn-icon">🤖</span>';
+            }
+            
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.add('active');
+        });
+    }
+    
+    console.log("File upload handler ready - Click any time!");
+})();
+</script>
+{% endblock %}

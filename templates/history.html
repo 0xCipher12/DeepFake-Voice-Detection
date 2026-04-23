@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History | DeepGuard AI{% endblock %}
+
+{% block history_active %}active{% endblock %}
+
+{% block content %}
+<div class="container history-container">
+    <div class="history-header">
+        <h1>📊 Analysis <span class="gradient-text">History</span></h1>
+        <p>View all your previous voice analysis results</p>
+    </div>
+
+    <div class="glass-card">
+        <div class="history-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="filter-buttons" style="display: flex; gap: 0.5rem;">
+                <button onclick="filterHistory('all')" class="filter-btn" style="padding: 0.5rem 1rem; background: rgba(0,198,255,0.2); border: none; border-radius: 8px; color: white; cursor: pointer;">All</button>
+                <button onclick="filterHistory('real')" class="filter-btn" style="padding: 0.5rem 1rem; background: rgba(0,255,136,0.1); border: none; border-radius: 8px; color: #00ff88; cursor: pointer;">Real Only</button>
+                <button onclick="filterHistory('fake')" class="filter-btn" style="padding: 0.5rem 1rem; background: rgba(255,0,102,0.1); border: none; border-radius: 8px; color: #ff0066; cursor: pointer;">Fake Only</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchHistory" placeholder="🔍 Search files..." onkeyup="searchHistory()" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; width: 200px;">
+            </div>
+        </div>
+
+        <div class="history-table-container">
+            {% if history and history|length > 0 %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Result</th>
+                        <th>Confidence</th>
+                        <th>File Type</th>
+                        <th>Size</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history %}
+                    <tr>
+                        <td title="{{ item.filename }}">{{ item.filename[:30] }}{% if item.filename|length > 30 %}...{% endif %}</td>
+                        <td>
+                            {% if item.result == "REAL VOICE" %}
+                            <span class="status-badge-small real">✓ REAL</span>
+                            {% else %}
+                            <span class="status-badge-small fake">⚠ FAKE</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span>{{ item.confidence }}%</span>
+                                <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                    {% if item.result == "REAL VOICE" %}
+                                    <div class="confidence-bar-real" data-confidence="{{ item.confidence }}" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ff88, #00c6ff); border-radius: 10px; transition: width 0.5s ease;"></div>
+                                    {% else %}
+                                    <div class="confidence-bar-fake" data-confidence="{{ item.confidence }}" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff0066, #ff3300); border-radius: 10px; transition: width 0.5s ease;"></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ item.file_type|upper }}</td>
+                        <td>{{ item.file_size }} KB</td>
+                        <td>{{ item.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-history">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
+                <h3>No Analysis History Yet</h3>
+                <p>Upload and analyze your first audio file to see results here.</p>
+                <a href="/" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">Analyze Now →</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if history and history|length > 0 %}
+    {% set real_count = 0 %}
+    {% set fake_count = 0 %}
+    {% for item in history %}
+        {% if item.result == "REAL VOICE" %}
+            {% set real_count = real_count + 1 %}
+        {% else %}
+            {% set fake_count = fake_count + 1 %}
+        {% endif %}
+    {% endfor %}
+    
+    <div class="stats-summary glass-card" style="margin-top: 1.5rem; text-align: center;">
+        <h3>📈 Summary</h3>
+        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+            <div>
+                <span style="font-size: 2rem; font-weight: 800; color: #00ff88;">{{ real_count }}</span>
+                <span style="display: block; color: var(--text-muted);">Real Voices</span>
+            </div>
+            <div>
+                <span style="font-size: 2rem; font-weight: 800; color: #ff0066;">{{ fake_count }}</span>
+                <span style="display: block; color: var(--text-muted);">Fake Voices</span>
+            </div>
+            <div>
+                <span style="font-size: 2rem; font-weight: 800; color: #00c6ff;">{{ history|length }}</span>
+                <span style="display: block; color: var(--text-muted);">Total Analyses</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Filter History Function
+function filterHistory(type) {
+    const rows = document.querySelectorAll('.history-table tbody tr');
+    
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else {
+            const statusElem = row.querySelector('.status-badge-small');
+            const status = statusElem ? statusElem.innerText.toLowerCase() : '';
+            if (type === 'real' && (status.includes('real') || status.includes('✓'))) {
+                row.style.display = '';
+            } else if (type === 'fake' && (status.includes('fake') || status.includes('⚠'))) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Search History Function
+function searchHistory() {
+    const searchTerm = document.getElementById('searchHistory').value.toLowerCase();
+    const rows = document.querySelectorAll('.history-table tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (text.includes(searchTerm) || searchTerm === '') {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Clear search when clicking filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const searchInput = document.getElementById('searchHistory');
+        if (searchInput) searchInput.value = '';
+    });
+});
+
+// Animate confidence bars on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("📊 History page loaded - Animating confidence bars");
+    
+    // Animate REAL confidence bars
+    const realBars = document.querySelectorAll('.confidence-bar-real');
+    realBars.forEach(bar => {
+        const confidence = bar.getAttribute('data-confidence');
+        setTimeout(() => {
+            bar.style.width = confidence + '%';
+        }, 100);
+    });
+    
+    // Animate FAKE confidence bars
+    const fakeBars = document.querySelectorAll('.confidence-bar-fake');
+    fakeBars.forEach(bar => {
+        const confidence = bar.getAttribute('data-confidence');
+        setTimeout(() => {
+            bar.style.width = confidence + '%';
+        }, 100);
+    });
+});
+</script>
+
+<style>
+.filter-btn {
+    transition: all 0.3s ease;
+}
+.filter-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+.history-table tr:hover {
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.status-badge-small {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.status-badge-small.real {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+.status-badge-small.fake {
+    background: rgba(255, 0, 102, 0.2);
+    color: #ff0066;
+    border: 1px solid rgba(255, 0, 102, 0.3);
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.history-table th {
+    text-align: left;
+    padding: 12px;
+    color: #00c6ff;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.history-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.empty-history {
+    text-align: center;
+    padding: 3rem;
+}
+.confidence-bar-real, .confidence-bar-fake {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+{% endblock %}

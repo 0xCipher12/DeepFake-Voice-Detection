@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}About | DeepGuard AI{% endblock %}
+
+{% block about_active %}active{% endblock %}
+
+{% block content %}
+<div class="container about-container">
+    <div class="about-header">
+        <h1 class="about-title">About <span class="gradient-text">DeepGuard AI</span></h1>
+        <p class="about-subtitle">Next-generation deepfake voice detection technology</p>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="mission-card glass-card">
+        <div class="mission-icon">🎯</div>
+        <h2>Our Mission</h2>
+        <p>In an era where AI-generated voices are becoming indistinguishable from real humans, DeepGuard AI is committed to providing cutting-edge detection technology to protect individuals and organizations from voice-based deepfake threats.</p>
+    </div>
+
+    <!-- Technology Stack -->
+    <div class="tech-section glass-card">
+        <h2>🛠️ Technology Stack</h2>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <span class="tech-icon">🐍</span>
+                <span>Python 3.9+</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">🎵</span>
+                <span>Librosa</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">🤖</span>
+                <span>Scikit-learn</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">🌊</span>
+                <span>Flask</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">📊</span>
+                <span>NumPy</span>
+            </div>
+            <div class="tech-item">
+                <span class="tech-icon">🎬</span>
+                <span>MoviePy</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="how-it-works glass-card">
+        <h2>⚙️ How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Feature Extraction</h3>
+                    <p>Extracts 30+ acoustic features including MFCC, Chroma, Spectral Centroid, Zero-Crossing Rate, and RMS Energy</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>AI Analysis</h3>
+                    <p>Random Forest classifier with 100 decision trees trained on thousands of real and fake voice samples</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Confidence Scoring</h3>
+                    <p>Generates probability scores with 94%+ accuracy in detecting synthetic voice patterns</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-section">
+        <div class="stat-card glass-card">
+            <div class="stat-number">94%</div>
+            <div class="stat-label">Detection Accuracy</div>
+        </div>
+        <div class="stat-card glass-card">
+            <div class="stat-number">&lt;5s</div>
+            <div class="stat-label">Analysis Time</div>
+        </div>
+        <div class="stat-card glass-card">
+            <div class="stat-number">6+</div>
+            <div class="stat-label">Audio Formats</div>
+        </div>
+        <div class="stat-card glass-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Privacy Protected</div>
+        </div>
+    </div>
+
+    <!-- Features List -->
+    <div class="features-list glass-card">
+        <h2>✨ Key Features</h2>
+        <div class="feature-items">
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Real-time voice deepfake detection</span>
+            </div>
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Support for multiple audio/video formats</span>
+            </div>
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Detailed confidence score visualization</span>
+            </div>
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Analysis history tracking</span>
+            </div>
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Exportable JSON reports</span>
+            </div>
+            <div class="feature-item">
+                <span class="check">✓</span>
+                <span>Privacy-first architecture (auto-delete)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="about-footer">
+        <p>🔬 Built with advanced machine learning for voice authentication research</p>
+        <p class="version">Version 2.0 | Continuous Improvement</p>
+    </div>
+</div>
+{% endblock %}
